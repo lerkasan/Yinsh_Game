@@ -1,0 +1,38 @@
+select x, y from token where (game_id = gid) and (x = xi)
+select x, y from token where (game_id = gid) and (y = yi)
+select x, y from token where (game_id = gid) and (y-x = yi-xi)
+select x, y from token where (game_id = gid) and (y+x = yi+xi)
+
+
+select x, y from token where (game_id = gid) and (x = xi) and (y >= yi)
+select x, y from token where (game_id = gid) and (x = xi) and (y < yi)
+select x, y from token where (game_id = gid) and (y = yi) and (x >= xi)
+select x, y from token where (game_id = gid) and (y = yi) and (x < xi)
+select x, y from token where (game_id = gid) and (y-x = yi-xi) and (x >= xi) and (y >= yi)
+select x, y from token where (game_id = gid) and (y-x = yi-xi) and (x < xi) and (y < yi)
+select x, y from token where (game_id = gid) and (y+x = yi+xi) and (x >= xi) and (y <= yi)
+select x, y from token where (game_id = gid) and (y+x = yi+xi) and (x < xi) and (y > yi)
+
+
+from django.db.models import F 
+from django.db.models import Min
+
+board = Token.objects.filter(game_id = gid)
+vertical = board.objects.filter(x = xi)
+horizontal = board.objects.filter(y = yi)
+maindiagonal = board.objects.filter(y = yi+xi - F('x'))
+antidiagonal = board.objects.filter(y = yi-xi + F('x'))
+
+vertical_gt = vertical.objects.filter(y_gte = yi)
+vertical_lt = vertical.objects.filter(y_lt = yi)
+horizontal_gt = horizontal.objects.filter(x_gte = xi)
+horizontal_lt = horizontal.objects.filter(x_gt = xi)
+maindiagonal_gt = maindiagonal.objects.filter(x_gte = xi, y_lte = yi)
+maindiagonal_lt = maindiagonal.objects.filter(x_lt = xi, y_gt = yi)
+antidiagonal_gt = antidiagonal.objects.filter(x_gte = xi, y_gte = yi)
+antidiagonal_lt = antidiagonal.objects.filter(x_lt = xi, y_lt = yi)
+
+norma_vertical_gt = vertical_gt.objects.extra(select={'norma': 'SQRT(x*x+y*y)'})
+min_norma_vertical_gt = norma_vertical_gt.aggregate(Min('norma'))
+
+(sqrt(F('x')*F('x')+F('y')*F('y')))
